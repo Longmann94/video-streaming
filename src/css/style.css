@@ -1,0 +1,25 @@
+
+.visually-hidden {
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+}
+
+.body-container {
+  display: grid;
+  grid: 150px 1fr / 1fr;
+}
+
+.top-container{
+  display: grid;
+  justify-content: center;
+}
+
+.POTG-preview{
+  display: grid;
+  grid: 150px 25px 10px / 1fr;
+}
