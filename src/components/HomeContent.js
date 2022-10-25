@@ -1,12 +1,12 @@
 import POTGPreview from './POTGPreview';
 
-const HomeContent = ({ filteredPosts }) => {
+const HomeContent = (props) => {
 
   return (
-    <div>
-      {filteredPosts.map((post) => (
-        <POTGPreview key={post.id} props={post} />
-      ))}
+    <div className="home-content">
+      {props.clipsArr.map((clip) => {
+        return <POTGPreview key={clip.id} clip={clip} />
+      })}
     </div>
   );
 }

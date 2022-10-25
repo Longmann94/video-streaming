@@ -1,16 +1,19 @@
+import { Link } from 'react-router-dom';
 
-const POTGPreview = (props) => {
+const POTGPreview = ({ clip }) => {
 
   return (
-    <div className="POTG-preview">
-      <img src={props.props.thumbnailUrl} />
-      <div className="POTG-title">
-        {props.props.title}
+    <Link to={clip.id}>
+      <div className="POTG-preview">
+        <img src={clip.thumbnailUrl} />
+        <div className="POTG-title">
+          <h3>{clip.title}</h3>
+        </div>
+        <div className="POTG-runtime">
+          <h4>Epic! votes: {clip.epic.length}</h4>
+        </div>
       </div>
-      <div className="POTG-runtime">
-        {props.props.runtime}
-      </div>
-    </div>
+      </ Link>
   );
 }
 
