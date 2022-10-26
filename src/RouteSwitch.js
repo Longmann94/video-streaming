@@ -47,7 +47,6 @@ const user = auth.currentUser;
 const handleAction = (id) => {
    const authentication = getAuth();
 
-   if(id === 2){
    //check if display name is already registered
    async function checkDisplayName() {
 
@@ -65,6 +64,35 @@ const handleAction = (id) => {
        console.log(e);
      }
    }
+
+   //check user uid and find their display name
+   async function matchUidToDisplayName(uid) {
+
+     try{
+       let q = query(collection(db, 'users'), where('uid', '==', uid));
+       let qsnap = await getDocs(q);
+       let dName = qsnap.data().displayName;
+       console.log(dName);
+     }
+     catch(e) {
+       console.log(e);
+     }
+   }
+
+   //create user in user db
+   async function createUser(uid, displayName) {
+
+     const docRef = await addDoc(collection(db, 'users'), {
+       displayName: displayName,
+       profileImgUrl: 'url',
+       search: ['search history'],
+       uid: uid,
+       userClips: ['array of user clips']
+     });
+
+   }
+
+   if(id === 2){
   //if user display name isn't in db, create account with email and password
 
    checkDisplayName()
@@ -76,7 +104,7 @@ const handleAction = (id) => {
          sessionStorage.setItem('Auth Token', response._tokenResponse.refreshToken);
        })
     .then(()=> {
-      console.log(displayName, auth.currentUser.uid);
+      createUser(auth.currentUser.uid, displayName);
     })
        .catch((error) => {
          if(error.code === 'auth/email-already-in-use'){
@@ -95,6 +123,9 @@ const handleAction = (id) => {
      .then((response) => {
        navigate('/UserHome');
        sessionStorage.setItem('Auth Token', response._tokenResponse.refreshToken);
+     })
+     .then(() => {
+        matchUidToDisplayName(uid);
      })
      .catch((error) => {
        if(error.code === 'auth/wrong-password'){
@@ -260,6 +291,7 @@ useEffect(() => {
           <Button variant='contained' size='large' sx={{color: '#FFFFFF', backgroundColor: '#f99e1a'}} onClick={handleClickSearch}>Search!</Button>
         </div>
         <div className='top-user-panel'>
+          <div> Hello, <b>{uid ? displayName : 'Stranger, consider registering :)'}</b> </div>
           {uid
             ?<Button variant='contained' onClick={handleLogout}>Log Out</Button>
             :<Button variant='contained' onClick={handleClickLogin}>Login</Button>
