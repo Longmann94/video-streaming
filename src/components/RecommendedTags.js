@@ -1,9 +1,9 @@
 
-const RecommendedTags = () => {
+const RecommendedTags = ({ tagsArr }) => {
 
   return (
     <div>
-      this is the recommended tags for the user to select.
+      
     </div>
   );
 }

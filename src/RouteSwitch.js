@@ -13,8 +13,8 @@ import Footer from './components/Footer';
 
 //import from firebase
 import { app, db } from './firebase';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { collection, addDoc, doc, query, where, getDoc, getDocs, Timestamp } from 'firebase/firestore';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
+import { collection, addDoc, doc, query, where, getDoc, getDocs, Timestamp, setDoc } from 'firebase/firestore';
 
 //import from toastify
 import { ToastContainer, toast } from 'react-toastify';
@@ -28,28 +28,65 @@ import Button from '@mui/material/Button';
 const RouteSwitch = () => {
 
   const year = new Date().getFullYear();
-
   const navigate = useNavigate();
 
   const [ search, setSearch ] = useState('');
   const [ email, setEmail ] = useState('');
   const [ password, setPassword ] = useState('');
   const [ clipsArr, setClipsArr ] = useState([]);
+  const [ currentClip, setCurrentClip ] = useState(''); //track what clip user is watching
+  const [ recommendedTags, setRecommendedTags ] = useState([]);
+  const [ uid, setUid ] = useState('');
+  const [ displayName, setDisplayName ] = useState('');
+
+//check if user is logged in
+const auth = getAuth();
+const user = auth.currentUser;
 
 //handle login/register
 const handleAction = (id) => {
    const authentication = getAuth();
 
    if(id === 2){
-   createUserWithEmailAndPassword(authentication, email, password)
-   .then((response) => {
-     navigate('/UserHome');
-     sessionStorage.setItem('Auth Token', response._tokenResponse.refreshToken)
-   })
-   .catch((error) => {
-     if(error.code === 'auth/email-already-in-use'){
-       toast.error('This email is already in use');
+   //check if display name is already registered
+   async function checkDisplayName() {
+
+     try{
+       let q = query(collection(db, 'users'), where('displayName', '==', displayName));
+       let matching = await getDocs(q);
+       if(matching.empty){
+         return false;
+       }else{
+         toast.error('your display name is taken try another one!');
+         return true;
+       }
+     }catch(e) {
+       toast.error('oops! something went wrong, please try again later :D');
+       console.log(e);
      }
+   }
+  //if user display name isn't in db, create account with email and password
+
+   checkDisplayName()
+   .then((response) => {
+     if(response === false){
+       createUserWithEmailAndPassword(authentication, email, password)
+       .then((response) => {
+         navigate('/UserHome');
+         sessionStorage.setItem('Auth Token', response._tokenResponse.refreshToken);
+       })
+    .then(()=> {
+      console.log(displayName, auth.currentUser.uid);
+    })
+       .catch((error) => {
+         if(error.code === 'auth/email-already-in-use'){
+           toast.error('This email is already in use');
+         }
+       });
+     }
+   })
+   .catch((e) =>{
+     console.log('something went wrong')
    });
  }
 
@@ -66,14 +103,18 @@ const handleAction = (id) => {
        if(error.code === 'auth/invalid-email'){
          toast.error('Please check the email');
        }
+       toast.error('Please check your email or password');
      });
    }
 }
 
-//handle log out
+//handle log out, remove session token, sign user out, setUid to empty, and navigate to home page
 const handleLogout = () => {
   sessionStorage.removeItem('Auth Token');
+  auth.signOut();
+  setUid('');
   navigate('/');
+  toast.success('you have logged out');
 }
 
 //navigate to login page
@@ -114,6 +155,12 @@ const handleClickSearch = async () => {
   }
 }
 
+//handleClick to return to homepage and reset search
+const handleClickHome = () => {
+  navigate('/');
+  readDb();
+}
+
 //db related functions
 async function readDb() {
 
@@ -130,6 +177,53 @@ async function readDb() {
   }
 }
 
+// const owdb = collection(db, 'ow-potg-db');
+//
+// setDoc(doc(owdb, '8DSb6rt3sHuJaYjVZcdR'), {
+//   id: 'id3',
+//   title: 'hanzo potg flanking ult :)',
+//   thumbnailUrl: 'https://img.youtube.com/vi/vinSWocWveI/hqdefault.jpg',
+//   url: 'https://www.youtube.com/embed/vinSWocWveI?autoplay=1&rel=0&mute=1',
+//   epic: [ 'user1', 'user2', 'user3', 'user4', 'user5', 'user6' ],
+//   tags: [ 'hanzo', 'ultimate', 'teamwipe', 'noob' ]
+// });
+//
+// setDoc(doc(owdb, 'S1cGIZeDjqZTNOj4cytd'), {
+//   id: 'id4',
+//   title: 'just another hanzo potg',
+//   thumbnailUrl: 'https://img.youtube.com/vi/q6HbK5Dhqxo/hqdefault.jpg',
+//   url: 'https://www.youtube.com/embed/q6HbK5Dhqxo?autoplay=1&rel=0&mute=1',
+//   epic: [ 'user1', 'user2', 'user3', 'user4' ],
+//   tags: [ 'hanzo', 'ultimate', 'teamwipe', 'op', 'potg' ]
+// });
+//
+// setDoc(doc(owdb, 'WTzKAz6WEmAMUneqvis3'), {
+//   id: 'id5',
+//   title: 'last hanzo potg I promise',
+//   thumbnailUrl: 'https://img.youtube.com/vi/QpmsaI3bNIE/hqdefault.jpg',
+//   url: 'https://www.youtube.com/embed/QpmsaI3bNIE?autoplay=1&rel=0&mute=1',
+//   epic: [ 'user1', 'user2', 'user4', 'user5', 'user6', 'user10' ],
+//   tags: [ 'hanzo', 'ultimate', 'teamwipe', 'noob', 'potg' ]
+// });
+//
+// setDoc(doc(owdb, 'jd2V8wBFRLEZHEdNBGCd'), {
+//   id: 'id6',
+//   title: 'sym rat potg',
+//   thumbnailUrl: 'https://img.youtube.com/vi/hfq5iikdCeg/hqdefault.jpg',
+//   url: 'https://www.youtube.com/embed/hfq5iikdCeg?autoplay=1&rel=0&mute=1',
+//   epic: [ 'user1', 'user5', 'user6', 'user42' ],
+//   tags: [ 'symmetra', 'pro' ]
+// });
+//
+// setDoc(doc(owdb, 'e50ycVx6wn8paRoNAbrN'), {
+//   id: 'id7',
+//   title: 'symmetra potg',
+//   thumbnailUrl: 'https://img.youtube.com/vi/XqMyA-rJRTI/hqdefault.jpg',
+//   url: 'https://www.youtube.com/embed/XqMyA-rJRTI?autoplay=1&rel=0&mute=1',
+//   epic: [ ],
+//   tags: [ 'symmetra' ]
+// });
+
 //initial loading for clips info from firestore
 useEffect(() => {
 
@@ -137,27 +231,49 @@ readDb();
 
 }, []);
 
+//check for user login status
+useEffect(() => {
+
+  if (user) {
+    // User is signed in, see docs for a list of available properties
+    // https://firebase.google.com/docs/reference/js/firebase.User
+    const uid = user.uid;
+    setUid(uid);
+    // ...
+  } else {
+    setUid('');
+  };
+
+});
+
   return (
     <div className="body-container">
       <ToastContainer />
       <div className="top-container">
         <div>
-          <Link to='/'>
+          <a onClick={handleClickHome}>
             <img height="150" width="150" src="https://firebasestorage.googleapis.com/v0/b/clip-sharing-749b3.appspot.com/o/Overwatch2_Primary_DKBKGD.png?alt=media&token=30149a8d-5928-4278-a906-e783bbf6ce36" alt="overwatch logo"/>
-          </Link>
+          </a>
         </div>
         <div className='search-container'>
-          <TextField id='searchInput' label='Search POTG...' variant='outlined' color='warning' onChange={handleChange} sx={{ backgroundColor: '#FFFFFF', borderColor: '#FFFFFF'}}/>
+          <TextField id='searchInput' label='Search OWPOTG...' variant='outlined' color='warning' onChange={handleChange} sx={{ backgroundColor: '#FFFFFF', borderColor: '#FFFFFF'}}/>
           <Button variant='contained' size='large' sx={{color: '#FFFFFF', backgroundColor: '#f99e1a'}} onClick={handleClickSearch}>Search!</Button>
         </div>
         <div className='top-user-panel'>
-          <Button variant='contained' onClick={handleClickLogin}>Login</Button>
+          {uid
+            ?<Button variant='contained' onClick={handleLogout}>Log Out</Button>
+            :<Button variant='contained' onClick={handleClickLogin}>Login</Button>
+          }
+          {!uid &&
+            <Link to='/register'><Button variant='contained'>Register</Button></Link>
+          }
+
         </div>
       </div>
       <Routes>
         <Route path='/' element={<App clipsArr={clipsArr} />} />
         <Route path='/login' element={<Form title='Login' setEmail={setEmail} setPassword={setPassword} handleAction={() => handleAction(1)} />} />
-        <Route path='/register' element={<Form title='Register' setEmail={setEmail} setPassword={setPassword} handleAction={() => handleAction(2)} />} />
+        <Route path='/register' element={<Form title='Register' setEmail={setEmail} setPassword={setPassword} setDisplayName={setDisplayName} handleAction={() => handleAction(2)} />} />
         <Route path='/UserHome' element={<UserHome handleLogout={handleLogout}/>} />
 
         {clipsArr.map((clip) => {
