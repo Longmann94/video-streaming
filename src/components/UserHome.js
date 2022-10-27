@@ -23,7 +23,6 @@ const UserHome = ({ handleLogout }) => {
   return (
     <div>
       this is where user can upload/delete manage their clips.
-      <Button variant='contained' onClick={handleLogout}>Log out</Button>
     </div>
   )
 }

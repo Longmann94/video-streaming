@@ -2,8 +2,8 @@
 const RecommendedTags = ({ tagsArr }) => {
 
   return (
-    <div>
-      
+    <div className='recommended-tags'>
+      this is recommended tags :D.
     </div>
   );
 }

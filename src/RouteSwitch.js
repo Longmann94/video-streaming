@@ -1,5 +1,5 @@
 //import from react-router-dom
-import { BrowserRouter as Router, Route, Routes, useNavigate, Link } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 
 //import from react
 import { useState, useEffect } from 'react';
@@ -23,6 +23,9 @@ import 'react-toastify/dist/ReactToastify.css';
 //import from materia UI
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
+import HomeIcon from '@mui/icons-material/Home';
+import LoginIcon from '@mui/icons-material/Login';
 
 
 const RouteSwitch = () => {
@@ -30,6 +33,7 @@ const RouteSwitch = () => {
   const year = new Date().getFullYear();
   const navigate = useNavigate();
 
+  //all use states goes here
   const [ search, setSearch ] = useState('');
   const [ email, setEmail ] = useState('');
   const [ password, setPassword ] = useState('');
@@ -38,14 +42,54 @@ const RouteSwitch = () => {
   const [ recommendedTags, setRecommendedTags ] = useState([]);
   const [ uid, setUid ] = useState('');
   const [ displayName, setDisplayName ] = useState('');
+  const [ userInfo, setUserInfo ] = useState({});
+  const [ userComment, setUserComment ] = useState('');
 
-//check if user is logged in
+//global varibles
 const auth = getAuth();
 const user = auth.currentUser;
 
+//check user uid and find their display name
+async function matchCurrentUser(uid) {
+ console.log('reading db for uid match');
+  try{
+    let docRef = doc(db, 'users', uid);
+    let docSnap = await getDoc(docRef);
+     setDisplayName(docSnap.data().displayName);
+     setUserInfo(docSnap.data());
+  }
+  catch(e) {
+    console.log(e);
+  }
+}
+
+//check for uid with async function
+async function checkForUid() {
+
+  try{
+    const auth = await getAuth();
+    const user = await auth.currentUser;
+
+    //check if user is logged in
+    onAuthStateChanged(auth, (user) => {
+      if(user) {
+        const uid = user.uid;
+        matchCurrentUser(uid);
+        setUid(uid);
+      } else {
+        console.log('user is not logged in');
+        setUid('');
+      }
+    });
+  }
+  catch(e){
+    toast.error('something went wrong during authentication try logging in again');
+  }
+}
+
 //handle login/register
 const handleAction = (id) => {
-   const authentication = getAuth();
+
 
    //check if display name is already registered
    async function checkDisplayName() {
@@ -65,28 +109,13 @@ const handleAction = (id) => {
      }
    }
 
-   //check user uid and find their display name
-   async function matchUidToDisplayName(uid) {
-
-     try{
-       let q = query(collection(db, 'users'), where('uid', '==', uid));
-       let qsnap = await getDocs(q);
-       let dName = qsnap.data().displayName;
-       console.log(dName);
-     }
-     catch(e) {
-       console.log(e);
-     }
-   }
-
    //create user in user db
    async function createUser(uid, displayName) {
 
-     const docRef = await addDoc(collection(db, 'users'), {
+     const docRef = await setDoc(doc(db, 'users', uid), {
        displayName: displayName,
        profileImgUrl: 'url',
        search: ['search history'],
-       uid: uid,
        userClips: ['array of user clips']
      });
 
@@ -98,7 +127,7 @@ const handleAction = (id) => {
    checkDisplayName()
    .then((response) => {
      if(response === false){
-       createUserWithEmailAndPassword(authentication, email, password)
+       createUserWithEmailAndPassword(auth, email, password)
        .then((response) => {
          navigate('/UserHome');
          sessionStorage.setItem('Auth Token', response._tokenResponse.refreshToken);
@@ -119,13 +148,13 @@ const handleAction = (id) => {
  }
 
    if(id === 1) {
-     signInWithEmailAndPassword(authentication, email, password)
+     signInWithEmailAndPassword(auth, email, password)
      .then((response) => {
        navigate('/UserHome');
        sessionStorage.setItem('Auth Token', response._tokenResponse.refreshToken);
      })
      .then(() => {
-        matchUidToDisplayName(uid);
+       matchCurrentUser(auth.currentUser.uid);
      })
      .catch((error) => {
        if(error.code === 'auth/wrong-password'){
@@ -137,6 +166,16 @@ const handleAction = (id) => {
        toast.error('Please check your email or password');
      });
    }
+
+//if user is logged in update uid
+   if(user) {
+     setUid('');
+     const uid = user.uid;
+     matchCurrentUser(uid);
+     setUid(uid);
+   } else {
+     setUid('');
+   };
 }
 
 //handle log out, remove session token, sign user out, setUid to empty, and navigate to home page
@@ -150,12 +189,32 @@ const handleLogout = () => {
 
 //navigate to login page
 const handleClickLogin = () => {
-  navigate('/Login');
+  navigate('/login');
+}
+
+//navigate to register page
+const handleClickRegister = () => {
+  navigate('/register');
+}
+
+//navigate to register page
+const handleClickUserHome = () => {
+  navigate('/UserHome');
 }
 
 //handlechange in search box
 const handleChange = (e) => {
   setSearch(e.target.value);
+}
+
+//handleChange in comment box
+const handleChangeComment = (e) => {
+  setUserComment(e.target.value);
+}
+
+//handle submit user comment to video db document
+const handleSubmitUserComment = () => {
+   if(!user) toast.error('please login to make a comment :)'); return;
 }
 
 //handle search button click
@@ -194,6 +253,7 @@ const handleClickHome = () => {
 
 //db related functions
 async function readDb() {
+  console.log('reading db');
 
   try{
     const q = query(collection(db, 'ow-potg-db'));
@@ -208,74 +268,13 @@ async function readDb() {
   }
 }
 
-// const owdb = collection(db, 'ow-potg-db');
-//
-// setDoc(doc(owdb, '8DSb6rt3sHuJaYjVZcdR'), {
-//   id: 'id3',
-//   title: 'hanzo potg flanking ult :)',
-//   thumbnailUrl: 'https://img.youtube.com/vi/vinSWocWveI/hqdefault.jpg',
-//   url: 'https://www.youtube.com/embed/vinSWocWveI?autoplay=1&rel=0&mute=1',
-//   epic: [ 'user1', 'user2', 'user3', 'user4', 'user5', 'user6' ],
-//   tags: [ 'hanzo', 'ultimate', 'teamwipe', 'noob' ]
-// });
-//
-// setDoc(doc(owdb, 'S1cGIZeDjqZTNOj4cytd'), {
-//   id: 'id4',
-//   title: 'just another hanzo potg',
-//   thumbnailUrl: 'https://img.youtube.com/vi/q6HbK5Dhqxo/hqdefault.jpg',
-//   url: 'https://www.youtube.com/embed/q6HbK5Dhqxo?autoplay=1&rel=0&mute=1',
-//   epic: [ 'user1', 'user2', 'user3', 'user4' ],
-//   tags: [ 'hanzo', 'ultimate', 'teamwipe', 'op', 'potg' ]
-// });
-//
-// setDoc(doc(owdb, 'WTzKAz6WEmAMUneqvis3'), {
-//   id: 'id5',
-//   title: 'last hanzo potg I promise',
-//   thumbnailUrl: 'https://img.youtube.com/vi/QpmsaI3bNIE/hqdefault.jpg',
-//   url: 'https://www.youtube.com/embed/QpmsaI3bNIE?autoplay=1&rel=0&mute=1',
-//   epic: [ 'user1', 'user2', 'user4', 'user5', 'user6', 'user10' ],
-//   tags: [ 'hanzo', 'ultimate', 'teamwipe', 'noob', 'potg' ]
-// });
-//
-// setDoc(doc(owdb, 'jd2V8wBFRLEZHEdNBGCd'), {
-//   id: 'id6',
-//   title: 'sym rat potg',
-//   thumbnailUrl: 'https://img.youtube.com/vi/hfq5iikdCeg/hqdefault.jpg',
-//   url: 'https://www.youtube.com/embed/hfq5iikdCeg?autoplay=1&rel=0&mute=1',
-//   epic: [ 'user1', 'user5', 'user6', 'user42' ],
-//   tags: [ 'symmetra', 'pro' ]
-// });
-//
-// setDoc(doc(owdb, 'e50ycVx6wn8paRoNAbrN'), {
-//   id: 'id7',
-//   title: 'symmetra potg',
-//   thumbnailUrl: 'https://img.youtube.com/vi/XqMyA-rJRTI/hqdefault.jpg',
-//   url: 'https://www.youtube.com/embed/XqMyA-rJRTI?autoplay=1&rel=0&mute=1',
-//   epic: [ ],
-//   tags: [ 'symmetra' ]
-// });
-
-//initial loading for clips info from firestore
+//initial loading and everytime component is mounted
 useEffect(() => {
 
-readDb();
+  readDb();
+  checkForUid();
 
 }, []);
-
-//check for user login status
-useEffect(() => {
-
-  if (user) {
-    // User is signed in, see docs for a list of available properties
-    // https://firebase.google.com/docs/reference/js/firebase.User
-    const uid = user.uid;
-    setUid(uid);
-    // ...
-  } else {
-    setUid('');
-  };
-
-});
 
   return (
     <div className="body-container">
@@ -291,13 +290,16 @@ useEffect(() => {
           <Button variant='contained' size='large' sx={{color: '#FFFFFF', backgroundColor: '#f99e1a'}} onClick={handleClickSearch}>Search!</Button>
         </div>
         <div className='top-user-panel'>
-          <div> Hello, <b>{uid ? displayName : 'Stranger, consider registering :)'}</b> </div>
+          <div>
+            Hello, <b>{uid ? 'welcome back! ' + displayName : 'Stranger, consider registering :)'}</b>
+          </div>
           {uid
-            ?<Button variant='contained' onClick={handleLogout}>Log Out</Button>
-            :<Button variant='contained' onClick={handleClickLogin}>Login</Button>
+            ?<Button variant='contained' onClick={handleLogout} endIcon={<LogoutOutlinedIcon />}>Log Out</Button>
+            :<Button variant='contained' onClick={handleClickLogin} endIcon={<LoginIcon />}>Login</Button>
           }
-          {!uid &&
-            <Link to='/register'><Button variant='contained'>Register</Button></Link>
+          {!uid
+            ?<Button variant='contained' onClick={handleClickRegister} >Register</Button>
+            :<Button variant='contained' onClick={handleClickUserHome} endIcon={<HomeIcon />}>User Home</Button>
           }
 
         </div>
@@ -310,7 +312,7 @@ useEffect(() => {
 
         {clipsArr.map((clip) => {
 
-          return <Route key='clip.id' path={clip.id} element={<POTGView clip={clip} />} />
+          return <Route key='clip.id' path={clip.id} element={<POTGView clip={clip} handleChangeComment={handleChangeComment} handleSubmitUserComment={handleSubmitUserComment} />} />
 
         })}
 

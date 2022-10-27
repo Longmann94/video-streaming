@@ -1,6 +1,11 @@
 body{
   font-family: 'Roboto', Helvetica,Arial;
   margin: auto;
+  background: #43484c;
+}
+
+.link {
+  color: #FFF;
 }
 
 .footer{
@@ -30,21 +35,11 @@ body{
 
 .top-user-panel{
   display: grid;
-  grid: 1fr / repeat(3, 1fr);
+  grid: 1fr / 2fr repeat(2, 1fr);
   gap: 1rem;
   padding-left: 5rem;
 }
 
-.POTG-preview{
-  display: grid;
-  grid: 1fr 25px 25px / 1fr;
-  padding: 2rem;
-}
-
-.POTG-preview img{
-  height: 100%;
-  width: 100%;
-}
 
 .home-content{
   display: grid;
@@ -54,13 +49,85 @@ body{
   padding: 2rem;
 }
 
+.recommended-tags{
+  background: white;
+  padding: 1rem;
+}
+
+.POTG-preview {
+    display: grid;
+    grid: 1fr 25px 25px / 1fr;
+    padding: 2rem;
+    background: black;
+    border-radius: 20px;
+    border: 2px solid #f99e1a;
+    margin: 0.5rem;
+    font-size: 1rem;
+}
+
+.POTG-preview img{
+  height: 100%;
+  width: 100%;
+}
+
+
+
+/* POTG-view */
 .POTG-view{
   display: grid;
-  grid: 2rem 2fr 0.5rem 1fr / 1fr;
+  grid: 0.1fr 2fr 0.1fr 0.25fr 1fr / 1fr;
   justify-items: center;
+  align-items: center;
   padding-top: 2rem;
+  height: 100vh;
+  width: 100vw;
+}
+
+.POTG-view-title{
+  font-size: 3.5rem;
+  color: white;
+  padding-bottom: 1rem;
+}
+
+.POTG-view-video{
+  width: 1300px;
+  height:800px;
+  padding: 1rem;
+}
+
+.POTG-view-interact-bar{
+  display: grid;
+  grid: 1fr / repeat(3, 1fr);
+  justify-items: left;
+  align-items: center;
   gap: 2rem;
 }
+
+.POTG-view-comments-interact-bar{
+  display: grid;
+  grid: 1fr 0.25fr / 1fr;
+  justify-items: left;
+  align-items: center;
+  gap: 2rem;
+}
+
+.POTG-view-comments-section{
+ display: grid;
+ grid: 0.5fr 4fr / 1fr;
+ padding-top: 2rem;
+ width: 60%;
+ gap: 2rem;
+}
+
+.POTG-view-comment{
+  display: grid;
+  grid: 1fr / 1fr 5fr 1fr;
+  gap: 2rem;
+  color: #218ffe;
+}
+
+
+/* ------------------------------------------------------------------------------------------------------------------- */
 
 .search-container{
  display: grid;
