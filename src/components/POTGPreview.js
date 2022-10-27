@@ -7,10 +7,11 @@ const POTGPreview = ({ clip }) => {
       <div className="POTG-preview">
         <img src={clip.thumbnailUrl} />
         <div className="POTG-title">
-          <h3>{clip.title}</h3>
+          {clip.title}
         </div>
-        <div className="POTG-runtime">
-          <h4>Epic! votes: {clip.epic.length}</h4>
+        <div className="POTG-info">
+          <div>Epic! votes: {clip.epic.length}</div>
+          <div>uploaded by: {clip.clipOwner}</div>
         </div>
       </div>
     </Link>

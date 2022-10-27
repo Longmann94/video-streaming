@@ -1,11 +1,20 @@
+html {
+  background: url('https://firebasestorage.googleapis.com/v0/b/clip-sharing-749b3.appspot.com/o/wp1809699-overwatch-wallpapers.jpg?alt=media&token=8d5ee33a-59cb-4608-a23b-7e197725c7e3') no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
 body{
   font-family: 'Roboto', Helvetica,Arial;
   margin: auto;
-  background: #43484c;
+  height: 100%;
+  width: 100%;
 }
 
 .link {
-  color: #FFF;
+  color: black;
 }
 
 .footer{
@@ -17,6 +26,7 @@ body{
   text-align: center;
   background: #43484c;
   color: #FFFFFF;
+  opacity: 0.90;
 }
 
 .body-container {
@@ -29,15 +39,21 @@ body{
   grid: 1fr / repeat(3, 1fr);
   justify-content: center;
   align-items: center;
-  background-color: #405275;
   padding: 1rem;
+  gap: 0.5rem;
 }
 
 .top-user-panel{
   display: grid;
   grid: 1fr / 2fr repeat(2, 1fr);
   gap: 1rem;
-  padding-left: 5rem;
+  margin-left: 2rem;
+  padding: 1rem;
+  color: black;
+  font-size: 1.25rem;
+  background: white;
+  border-radius: 10px;
+  opacity: 0.90;
 }
 
 
@@ -46,7 +62,8 @@ body{
   grid: 1fr / repeat(5, 1fr);
   justify-items: center;
   align-items: center;
-  padding: 2rem;
+  padding: 1.5rem;
+  gap: 1rem;
 }
 
 .recommended-tags{
@@ -54,20 +71,36 @@ body{
   padding: 1rem;
 }
 
+/* POTG-Previews cards */
 .POTG-preview {
     display: grid;
-    grid: 1fr 25px 25px / 1fr;
-    padding: 2rem;
-    background: black;
-    border-radius: 20px;
-    border: 2px solid #f99e1a;
-    margin: 0.5rem;
+    grid: 1fr 0.15fr 0.15fr / 1fr;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: rgba(150, 190, 255, 0.69);
+    border-radius: 30px;
+    border: 15px solid white;
+    border-top: 15px solid orange;
     font-size: 1rem;
+    justify-items: center;
 }
 
 .POTG-preview img{
   height: 100%;
   width: 100%;
+  border-radius: 10px;
+  border: 2.5px solid white;
+}
+
+.POTG-title{
+  justify-self: left;
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.POTG-info{
+  justify-self: left;
+  font-size: 1.1rem;
 }
 
 
@@ -85,12 +118,12 @@ body{
 
 .POTG-view-title{
   font-size: 3.5rem;
-  color: white;
+  color: black;
   padding-bottom: 1rem;
 }
 
 .POTG-view-video{
-  width: 1300px;
+  width: 1400px;
   height:800px;
   padding: 1rem;
 }
@@ -101,12 +134,16 @@ body{
   justify-items: left;
   align-items: center;
   gap: 2rem;
+  color: white;
+  background: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  padding: 1rem;
 }
 
 .POTG-view-comments-interact-bar{
   display: grid;
   grid: 1fr 0.25fr / 1fr;
-  justify-items: left;
+  justify-items: center;
   align-items: center;
   gap: 2rem;
 }
@@ -114,9 +151,12 @@ body{
 .POTG-view-comments-section{
  display: grid;
  grid: 0.5fr 4fr / 1fr;
+ justify-items: center;
  padding-top: 2rem;
  width: 60%;
  gap: 2rem;
+ background: rgba(255, 255, 255, 0.69);
+ border-radius: 5px;
 }
 
 .POTG-view-comment{
@@ -141,4 +181,5 @@ body{
   gap: 0.5rem;
   justify-items: center;
   align-items: center;
+  background: rgba(255, 255, 255, 0.69);
 }

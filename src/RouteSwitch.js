@@ -1,5 +1,5 @@
 //import from react-router-dom
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
 
 //import from react
 import { useState, useEffect } from 'react';
@@ -166,16 +166,6 @@ const handleAction = (id) => {
        toast.error('Please check your email or password');
      });
    }
-
-//if user is logged in update uid
-   if(user) {
-     setUid('');
-     const uid = user.uid;
-     matchCurrentUser(uid);
-     setUid(uid);
-   } else {
-     setUid('');
-   };
 }
 
 //handle log out, remove session token, sign user out, setUid to empty, and navigate to home page
@@ -211,10 +201,26 @@ const handleChange = (e) => {
 const handleChangeComment = (e) => {
   setUserComment(e.target.value);
 }
-
+const location = useLocation();
 //handle submit user comment to video db document
 const handleSubmitUserComment = () => {
-   if(!user) toast.error('please login to make a comment :)'); return;
+  console.log(location);
+
+   if(!user){
+     toast.error('please login to make a comment');
+     return;
+   }
+
+   if(userComment.length === 0){
+     toast.error('please write what you want to comment');
+     return;
+   }
+
+   const postComment = async () => {
+
+   }
+
+
 }
 
 //handle search button click
@@ -294,12 +300,12 @@ useEffect(() => {
             Hello, <b>{uid ? 'welcome back! ' + displayName : 'Stranger, consider registering :)'}</b>
           </div>
           {uid
-            ?<Button variant='contained' onClick={handleLogout} endIcon={<LogoutOutlinedIcon />}>Log Out</Button>
-            :<Button variant='contained' onClick={handleClickLogin} endIcon={<LoginIcon />}>Login</Button>
+            ?<Button variant='contained' onClick={handleLogout} endIcon={<LogoutOutlinedIcon />} sx={{color: '#FFFFFF', backgroundColor: '#f99e1a'}} >Log Out</Button>
+            :<Button variant='contained' onClick={handleClickLogin} endIcon={<LoginIcon />} sx={{color: '#FFFFFF', backgroundColor: '#f99e1a'}} >Login</Button>
           }
           {!uid
-            ?<Button variant='contained' onClick={handleClickRegister} >Register</Button>
-            :<Button variant='contained' onClick={handleClickUserHome} endIcon={<HomeIcon />}>User Home</Button>
+            ?<Button variant='contained' onClick={handleClickRegister} sx={{color: '#FFFFFF', backgroundColor: '#f99e1a'}} >Register</Button>
+            :<Button variant='contained' onClick={handleClickUserHome} endIcon={<HomeIcon />} sx={{color: '#FFFFFF', backgroundColor: '#f99e1a'}} >User Home</Button>
           }
 
         </div>
