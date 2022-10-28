@@ -42,7 +42,6 @@ const RouteSwitch = () => {
   const [ email, setEmail ] = useState('');
   const [ password, setPassword ] = useState('');
   const [ clipsArr, setClipsArr ] = useState([]);
-  const [ currentClip, setCurrentClip ] = useState(''); //track what clip user is watching
   const [ recommendedTags, setRecommendedTags ] = useState([]);
   const [ uid, setUid ] = useState('');
   const [ displayName, setDisplayName ] = useState('');
@@ -207,22 +206,64 @@ const handleChangeComment = (e) => {
   setUserComment(e.target.value);
 }
 
+const handleClickEpic = () => {
+
+  //if user is not logged in send toast error
+     if(!user){
+       toast.error('please login to epic a video');
+       return;
+     }
+
+  const epicClip = async () => {
+    let clipID = location.pathname.slice(1).trim();
+    let clipRef = doc(db, 'ow-potg-db', clipID);
+
+
+  //try to see if user already in epic array/already epic the clip and add them if they are not there yet
+    try{
+     let docSnap = await getDoc(clipRef);
+
+     if(docSnap.data().epic.includes('Layfonn')){
+        toast.error('you already liked this clip!');
+       return;
+     }
+
+    let commentRes = await updateDoc(clipRef, {
+       epic: arrayUnion(displayName)
+     });
+
+    readDb();
+   }
+   catch(e){
+     console.log(e);
+     toast.error('something went wrong trying to epic this clip, try again later')
+   }
+ }
+//run aysnc function
+epicClip();
+//read db again to update
+
+}
+
 //handle submit user comment to video db document
 const handleSubmitUserComment = () => {
 
-  let clipID = location.pathname.slice(1);
+  let clipID = location.pathname.slice(1).trim();
+  let clipRef = doc(db, 'ow-potg-db', clipID);
   let serverTime = Timestamp.now().toDate();
 
+//if user is not logged in send toast error
    if(!user){
      toast.error('please login to make a comment');
      return;
    }
-
+//if user comment is empty also send toast error
    if(userComment.length === 0){
      toast.error('please write what you want to comment');
      return;
    }
 
+//post comment to db by identifying clip ID and user display name
    const postComment = async () => {
 
      let clipRef = doc(db, 'ow-potg-db', clipID);
@@ -245,6 +286,7 @@ const handleSubmitUserComment = () => {
       }
    }
 
+   //run readdb again to update user comments
    postComment();
    readDb();
 }
@@ -344,7 +386,14 @@ useEffect(() => {
 
         {clipsArr.map((clip) => {
 
-          return <Route key='clip.id' path={clip.id} element={<POTGView clip={clip} handleChangeComment={handleChangeComment} handleSubmitUserComment={handleSubmitUserComment} />} />
+          return <Route key='clip.id' path={clip.id}
+            element={
+              <POTGView
+                clip={clip}
+                handleChangeComment={handleChangeComment}
+                handleSubmitUserComment={handleSubmitUserComment}
+                handleClickEpic={handleClickEpic}
+              />} />
 
         })}
 

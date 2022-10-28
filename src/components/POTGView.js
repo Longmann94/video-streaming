@@ -4,9 +4,7 @@ import AddCommentOutlinedIcon from '@mui/icons-material/AddCommentOutlined';
 import TextField from '@mui/material/TextField';
 
 
-const POTGView = ({ clip, handleChangeComment, handleSubmitUserComment }) => {
-
-  console.log(clip.comments);
+const POTGView = ({ clip, handleChangeComment, handleSubmitUserComment, handleClickEpic }) => {
 
   return (
     <div className='POTG-view'>
@@ -14,7 +12,7 @@ const POTGView = ({ clip, handleChangeComment, handleSubmitUserComment }) => {
       <iframe className='POTG-view-video' src={clip.url} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen="allowFullScreen"></iframe>
       <div className='POTG-view-interact-bar'>
         <div>epic! votes: {clip.epic.length}</div>
-        <Button variant='contained' sx={{color: '#FFFFFF', backgroundColor: '#f99e1a'}} endIcon={<ThumbUpOutlinedIcon />}> Epic! </Button>
+        <Button variant='contained' sx={{color: '#FFFFFF', backgroundColor: '#f99e1a'}} endIcon={<ThumbUpOutlinedIcon />} onClick={handleClickEpic}> Epic! </Button>
       </div>
       <div className='POTG-view-comments-section'>
         <div className='POTG-view-comments-interact-bar'>
