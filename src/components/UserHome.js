@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
 
-const UserHome = ({ handleLogout }) => {
+const UserHome = ({ userHomeDisplay, handleClickUserHomeButtons }) => {
 
   let navigate = useNavigate();
 
@@ -21,8 +21,26 @@ const UserHome = ({ handleLogout }) => {
   }, []);
 
   return (
-    <div>
-      this is where user can upload/delete manage their clips.
+    <div className='user-home-main-container'>
+      <div className='user-home-top-interact-bar'>
+        <Button variant='contained' onClick={handleClickUserHomeButtons} id='Upload'>Upload</Button>
+        <Button variant='contained' onClick={handleClickUserHomeButtons} id='Epic Clip'>Epic Clip</Button>
+        <Button variant='contained' onClick={handleClickUserHomeButtons} id='Profile'>Profile</Button>
+      </div>
+      <div className='user-home-content'>
+        {
+          userHomeDisplay === 'Profile' &&
+          <div>profile stuff</div>
+        }
+        {
+          userHomeDisplay === 'Upload' &&
+          <div>upload stuff</div>
+        }
+        {
+          userHomeDisplay === 'Epic Clip' &&
+          <div>Epic stuff</div>
+        }
+      </div>
     </div>
   )
 }

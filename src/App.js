@@ -1,14 +1,14 @@
 import RecommendedTags from './components/RecommendedTags';
 import HomeContent from './components/HomeContent';
 
-const App = (props) => {
+const App = ({recommendedTagsArr, clipsArr, handleClickPopularTags }) => {
 
   return (
     <div>
       <div className="main-container">
 
-        <RecommendedTags />
-        <HomeContent clipsArr={props.clipsArr} />
+        <RecommendedTags recommendedTagsArr={recommendedTagsArr} handleClickPopularTags={handleClickPopularTags} />
+        <HomeContent clipsArr={clipsArr} />
 
       </div>
 

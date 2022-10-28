@@ -47,6 +47,10 @@ const RouteSwitch = () => {
   const [ displayName, setDisplayName ] = useState('');
   const [ userInfo, setUserInfo ] = useState({});
   const [ userComment, setUserComment ] = useState('');
+  const [ recommendedTagsArr, setRecommendedTagsArr ] = useState([
+    'dva', 'potg', 'epic', 'hanzo', 'symmetra'
+  ]);
+  const [ userHomeDisplay, setUserHomeDisplay ] = useState('Profile');
 
 //global varibles
 const auth = getAuth();
@@ -319,6 +323,32 @@ const handleClickSearch = async () => {
   }
 }
 
+//handle search with popular tags click
+const handleClickPopularTags = async(e) => {
+
+  navigate('/');
+
+  try{
+    let q = query(collection(db, 'ow-potg-db'), where('tags', 'array-contains', e.currentTarget.id));
+    let qSnap = await getDocs(q);
+    let tempArr = [];
+    setClipsArr([]);
+    //if nothing is found return a message
+    if(qSnap.empty) toast.error('no results found try something else');
+    qSnap.forEach((doc) => {
+      tempArr.push(doc.data());
+      setClipsArr([...tempArr]);
+    });
+  }catch(e) {
+    toast.error('oops! something went wrong, please try again later :D');
+  }
+}
+
+//options button user homepage
+const handleClickUserHomeButtons = (e) => {
+  setUserHomeDisplay(e.currentTarget.id);
+}
+
 //handleClick to return to homepage and reset search
 const handleClickHome = () => {
   navigate('/');
@@ -379,10 +409,10 @@ useEffect(() => {
         </div>
       </div>
       <Routes>
-        <Route path='/' element={<App clipsArr={clipsArr} />} />
+        <Route path='/' element={<App clipsArr={clipsArr} recommendedTagsArr={recommendedTagsArr} handleClickPopularTags={handleClickPopularTags}/>} />
         <Route path='/login' element={<Form title='Login' setEmail={setEmail} setPassword={setPassword} handleAction={() => handleAction(1)} />} />
         <Route path='/register' element={<Form title='Register' setEmail={setEmail} setPassword={setPassword} setDisplayName={setDisplayName} handleAction={() => handleAction(2)} />} />
-        <Route path='/UserHome' element={<UserHome handleLogout={handleLogout}/>} />
+        <Route path='/UserHome' element={<UserHome userHomeDisplay={userHomeDisplay} handleClickUserHomeButtons={handleClickUserHomeButtons}/>} />
 
         {clipsArr.map((clip) => {
 

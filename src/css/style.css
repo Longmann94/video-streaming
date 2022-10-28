@@ -27,6 +27,7 @@ body{
   background: #43484c;
   color: #FFFFFF;
   opacity: 0.90;
+  font-size: 1.1rem;
 }
 
 .body-container {
@@ -67,9 +68,40 @@ body{
 }
 
 .recommended-tags{
+  display: grid;
+  grid: 1fr / 0.15fr 1fr;
   background: white;
   padding: 1rem;
+  justify-content: center;
+  align-items: center;
 }
+
+.recommended-tags-popular{
+  font-size: 1.25rem;
+}
+
+/* User home stuff */
+
+.user-home-main-container {
+  display: grid;
+  grid: 0.15fr 1fr / 1fr;
+  gap: 1rem;
+  padding: 2rem;
+}
+
+.user-home-top-interact-bar{
+  background: rgba(0, 0, 0, 0.5);
+  padding: 2rem;
+  border-radius: 10px;
+}
+
+.user-home-content{
+  background: rgba(255, 255, 255, 0.5);
+  padding: 2rem;
+  border-radius: 5px;
+}
+
+/* -------------------------------------------------------------------------------------------- */
 
 /* POTG-Previews cards */
 .POTG-preview {
@@ -103,7 +135,7 @@ body{
   font-size: 1.1rem;
 }
 
-
+/* ------------------------------------------------------------------------------------------------ */
 
 /* POTG-view */
 .POTG-view{
@@ -113,6 +145,7 @@ body{
   align-items: center;
   height: 100vh;
   width: 100vw;
+  gap: 0.5rem;
 }
 
 .POTG-view-title{
@@ -165,6 +198,7 @@ body{
   gap: 2rem;
   color: #218ffe;
   font-size: 1.25rem;
+  padding: 0.5rem;
 }
 
 
