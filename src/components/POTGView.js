@@ -6,6 +6,8 @@ import TextField from '@mui/material/TextField';
 
 const POTGView = ({ clip, handleChangeComment, handleSubmitUserComment }) => {
 
+  console.log(clip.comments);
+
   return (
     <div className='POTG-view'>
       <div className='POTG-view-title'>{clip.title}</div>
@@ -30,6 +32,7 @@ const POTGView = ({ clip, handleChangeComment, handleSubmitUserComment }) => {
           />
           <Button variant='contained' onClick={handleSubmitUserComment} sx={{color: '#FFFFFF', backgroundColor: '#f99e1a'}} >comment</Button>
         </div>
+        <div className='POTG-view-user-comments'>
         {
           clip.comments.length === 0 && <b>no comments yet...be the first!</b>
         }
@@ -50,6 +53,7 @@ const POTGView = ({ clip, handleChangeComment, handleSubmitUserComment }) => {
               </div>)
           })
         }
+        </div>
       </div>
     </div>
   );

@@ -14,7 +14,7 @@ import Footer from './components/Footer';
 //import from firebase
 import { app, db } from './firebase';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
-import { collection, addDoc, doc, query, where, getDoc, getDocs, Timestamp, setDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, query, where, getDoc, getDocs, Timestamp, setDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 
 //import from toastify
 import { ToastContainer, toast } from 'react-toastify';
@@ -27,11 +27,15 @@ import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import HomeIcon from '@mui/icons-material/Home';
 import LoginIcon from '@mui/icons-material/Login';
 
+//misc imports
+import uniqid from 'uniqid';
+
 
 const RouteSwitch = () => {
 
   const year = new Date().getFullYear();
   const navigate = useNavigate();
+  const location = useLocation();
 
   //all use states goes here
   const [ search, setSearch ] = useState('');
@@ -48,6 +52,7 @@ const RouteSwitch = () => {
 //global varibles
 const auth = getAuth();
 const user = auth.currentUser;
+const uniqueID = uniqid();
 
 //check user uid and find their display name
 async function matchCurrentUser(uid) {
@@ -201,10 +206,12 @@ const handleChange = (e) => {
 const handleChangeComment = (e) => {
   setUserComment(e.target.value);
 }
-const location = useLocation();
+
 //handle submit user comment to video db document
 const handleSubmitUserComment = () => {
-  console.log(location);
+
+  let clipID = location.pathname.slice(1);
+  let serverTime = Timestamp.now().toDate();
 
    if(!user){
      toast.error('please login to make a comment');
@@ -218,9 +225,28 @@ const handleSubmitUserComment = () => {
 
    const postComment = async () => {
 
+     let clipRef = doc(db, 'ow-potg-db', clipID);
+
+      try{
+        let commentRes = await updateDoc(clipRef, {
+            comments: arrayUnion(
+          {
+            displayName: displayName,
+            id: uniqueID,
+            message: userComment,
+            upvote: 0,
+            time: serverTime
+          })
+        });
+      }
+      catch(e){
+        console.log(e);
+        toast.error('something went wrong when trying to post your comment, try again later');
+      }
    }
 
-
+   postComment();
+   readDb();
 }
 
 //handle search button click
