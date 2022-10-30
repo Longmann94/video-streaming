@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/video-streaming/static/css/main.e844b40c.css",
+    "main.js": "/video-streaming/static/js/main.913b44ce.js",
+    "index.html": "/video-streaming/index.html",
+    "main.e844b40c.css.map": "/video-streaming/static/css/main.e844b40c.css.map",
+    "main.913b44ce.js.map": "/video-streaming/static/js/main.913b44ce.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e844b40c.css",
+    "static/js/main.913b44ce.js"
+  ]
+}
