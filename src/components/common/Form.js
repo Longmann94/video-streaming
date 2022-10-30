@@ -22,7 +22,7 @@ export default function BasicTextField({ title, setPassword, setEmail, setDispla
       >
         <div>
           <TextField id='email' label='Enter your Email' color='warning' variant='outlined' onChange={(e) => setEmail(e.target.value)} sx={{margin: '0.5rem'}} />
-          <TextField id='passowrd' type='password' label='Enter your Password' color='warning' variant='outlined' onChange={(e) => setPassword(e.target.value)} sx={{margin: '0.5rem'}} />
+          <TextField id='passoword' type='password' label='Enter your Password' color='warning' variant='outlined' onChange={(e) => setPassword(e.target.value)} sx={{margin: '0.5rem'}} />
           {title == 'Register' &&
             <TextField id='displayName' label='Enter your display name' color='warning' variant='outlined' onChange={(e) => setDisplayName(e.target.value)} sx={{margin: '0.5rem'}} />
           }

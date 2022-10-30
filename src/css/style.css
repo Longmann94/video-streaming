@@ -101,6 +101,17 @@ body{
   border-radius: 5px;
 }
 
+.user-home-upload-form{
+  display: grid;
+  grid: 1fr 0.25fr / 1fr;
+  gap: 1rem;
+}
+
+.user-home-upload-form-input{
+  display: grid;
+  gap: 1rem;
+}
+
 /* -------------------------------------------------------------------------------------------- */
 
 /* POTG-Previews cards */
@@ -109,12 +120,16 @@ body{
     grid: 1fr 0.15fr 0.15fr / 1fr;
     gap: 1rem;
     padding: 1.25rem;
-    background: rgba(150, 190, 255, 0.69);
+    background: rgba(150, 190, 255, 0.75);
     border-radius: 30px;
     border: 15px solid white;
     border-top: 15px solid orange;
     font-size: 1rem;
     justify-items: center;
+}
+
+.POTG-preview :hover{
+  transform: scale(1.25);
 }
 
 .POTG-preview img{

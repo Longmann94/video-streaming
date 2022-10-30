@@ -12,9 +12,10 @@ import UserHome from './components/UserHome';
 import Footer from './components/Footer';
 
 //import from firebase
-import { app, db } from './firebase';
+import { app, db, storage } from './firebase';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
 import { collection, addDoc, doc, query, where, getDoc, getDocs, Timestamp, setDoc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 
 //import from toastify
 import { ToastContainer, toast } from 'react-toastify';
@@ -51,6 +52,10 @@ const RouteSwitch = () => {
     'dva', 'potg', 'epic', 'hanzo', 'symmetra'
   ]);
   const [ userHomeDisplay, setUserHomeDisplay ] = useState('Profile');
+  const [ file, setFile ] = useState('');
+  const [ uploadPercent, setUploadPercent ] = useState(0);
+  const [ uploadTitle, setUploadTitle ] = useState('');
+  const [ uploadTags, setUploadTags ] = useState('');
 
 //global varibles
 const auth = getAuth();
@@ -59,7 +64,6 @@ const uniqueID = uniqid();
 
 //check user uid and find their display name
 async function matchCurrentUser(uid) {
- console.log('reading db for uid match');
   try{
     let docRef = doc(db, 'users', uid);
     let docSnap = await getDoc(docRef);
@@ -85,7 +89,6 @@ async function checkForUid() {
         matchCurrentUser(uid);
         setUid(uid);
       } else {
-        console.log('user is not logged in');
         setUid('');
       }
     });
@@ -349,6 +352,77 @@ const handleClickUserHomeButtons = (e) => {
   setUserHomeDisplay(e.currentTarget.id);
 }
 
+//handle input from upload feature
+const handleChangeFileInput = (e) => {
+  setFile(e.target.files[0]);
+}
+
+const handleChangeUploadTitle = (e) => {
+  setUploadTitle(e.target.value);
+}
+
+const handleChangeUploadTags = (e) => {
+  setUploadTags(e.target.value)
+}
+
+//handle upload file to firebase
+const handleUpload = () => {
+  //create tags arr
+  console.log(uploadTags);
+  let tagsArr = uploadTags.split(',');
+
+  if(!file){
+    toast.error('please choose a clip first!');
+  }
+
+  const storageRef = ref(storage, `/clips/${file.name}`);
+  const uploadTask = uploadBytesResumable(storageRef, file);
+
+  uploadTask.on(
+    'state_changed',
+    (snapshot) => {
+      const percent = Math.round(
+        (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+      );
+      setUploadPercent(percent);
+    },
+    (err) => console.error(err),
+    () => {
+      //download url
+      getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+        console.log(url);
+        //add file location to db
+        const addClipToDB = async () => {
+          try{
+          const docRef = await addDoc(collection(db, 'ow-potg-db'), {
+            clipOwner: displayName,
+            comments: [],
+            epic: [],
+            id: '',
+            tags: [...tagsArr],
+            thumbnailUrl: 'https://firebasestorage.googleapis.com/v0/b/clip-sharing-749b3.appspot.com/o/clips%2Fplaceholder-thumbnail.png?alt=media&token=5f0d716e-d628-4afd-baa6-384026ef428b',
+            title: uploadTitle,
+            url: url
+          });
+
+          let clipID = docRef.id;
+
+          await updateDoc(doc(db, 'ow-potg-db', clipID), {
+            id: clipID
+          });
+        }catch(e) {
+          toast.error('oops! something went wrong, please try again later :D');
+          console.log(e);
+        }
+      }
+
+      addClipToDB();
+      });
+    }
+  );
+}
+
+
 //handleClick to return to homepage and reset search
 const handleClickHome = () => {
   navigate('/');
@@ -357,7 +431,6 @@ const handleClickHome = () => {
 
 //db related functions
 async function readDb() {
-  console.log('reading db');
 
   try{
     const q = query(collection(db, 'ow-potg-db'));
@@ -412,20 +485,31 @@ useEffect(() => {
         <Route path='/' element={<App clipsArr={clipsArr} recommendedTagsArr={recommendedTagsArr} handleClickPopularTags={handleClickPopularTags}/>} />
         <Route path='/login' element={<Form title='Login' setEmail={setEmail} setPassword={setPassword} handleAction={() => handleAction(1)} />} />
         <Route path='/register' element={<Form title='Register' setEmail={setEmail} setPassword={setPassword} setDisplayName={setDisplayName} handleAction={() => handleAction(2)} />} />
-        <Route path='/UserHome' element={<UserHome userHomeDisplay={userHomeDisplay} handleClickUserHomeButtons={handleClickUserHomeButtons}/>} />
+        <Route path='/UserHome' element={
+          <UserHome
+            userHomeDisplay={userHomeDisplay}
+            handleClickUserHomeButtons={handleClickUserHomeButtons}
+            handleChangeFileInput={handleChangeFileInput}
+            handleUpload={handleUpload}
+            uploadPercent={uploadPercent}
+            handleChangeUploadTitle={handleChangeUploadTitle}
+            handleChangeUploadTags={handleChangeUploadTags}
+          />} />
 
-        {clipsArr.map((clip) => {
+        {
+          clipsArr.map((clip) => {
 
-          return <Route key='clip.id' path={clip.id}
-            element={
-              <POTGView
-                clip={clip}
-                handleChangeComment={handleChangeComment}
-                handleSubmitUserComment={handleSubmitUserComment}
-                handleClickEpic={handleClickEpic}
-              />} />
+            return <Route key='clip.id' path={clip.id}
+              element={
+                <POTGView
+                  clip={clip}
+                  handleChangeComment={handleChangeComment}
+                  handleSubmitUserComment={handleSubmitUserComment}
+                  handleClickEpic={handleClickEpic}
+                />} />
 
-        })}
+          })
+        }
 
       </Routes>
       <Footer year={year} />
